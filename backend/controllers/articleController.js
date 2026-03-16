@@ -63,9 +63,11 @@ const getArticles = async (req, res) => {
 // @access  Public
 const getArticle = async (req, res) => {
   try {
+    console.log(`[Articles] Fetching article with ID: ${req.params.id}`);
     const article = await Article.findOne({ _id: req.params.id, isPublished: true });
     
     if (!article) {
+      console.log(`[Articles] Article not found: ${req.params.id}`);
       return res.status(404).json({
         success: false,
         error: 'Article not found'
@@ -82,6 +84,7 @@ const getArticle = async (req, res) => {
       data: normalize(article)
     });
   } catch (error) {
+    console.error(`[Articles] Error fetching article ${req.params.id}:`, error);
     res.status(500).json({
       success: false,
       error: 'Server error while fetching article'

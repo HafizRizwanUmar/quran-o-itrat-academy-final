@@ -27,9 +27,7 @@ const Library = () => {
   const [activeTab, setActiveTab]           = useState('materials');
   const [viewMode, setViewMode]             = useState('grid');
   const [selectedMaterialId, setSelectedMaterialId] = useState(null);
-  const [selectedArticleId, setSelectedArticleId]   = useState(null);
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
-  const [isArticleModalOpen, setIsArticleModalOpen]   = useState(false);
 
   const fetchMaterials = async (page = 1, search = '', category = '') => {
     try {
@@ -299,7 +297,6 @@ const Library = () => {
       </div>
 
       <LibraryMaterialDetailModal materialId={selectedMaterialId} isOpen={isMaterialModalOpen} onClose={() => { setIsMaterialModalOpen(false); setSelectedMaterialId(null); }} />
-      <ArticleDetailModal articleId={selectedArticleId} isOpen={isArticleModalOpen} onClose={() => { setIsArticleModalOpen(false); setSelectedArticleId(null); }} />
     </div>
   );
 };

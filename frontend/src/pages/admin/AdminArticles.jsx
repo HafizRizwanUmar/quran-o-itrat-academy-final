@@ -127,6 +127,9 @@ const AdminArticles = () => {
                   )}
                 </div>
                 <div style={{display:'flex',gap:'0.4rem',flexShrink:0}}>
+                  <a href={`/articles/${a._id}`} target="_blank" rel="noopener noreferrer" className="admin-btn-ghost" style={{padding:'0.4rem 0.7rem', color: 'var(--jade)', borderColor: 'rgba(20,122,84,0.3)'}} title="View Live">
+                    <Eye size={13}/>
+                  </a>
                   <button className="admin-btn-ghost" style={{padding:'0.4rem 0.7rem'}} onClick={()=>openEdit(a)}><Edit size={13}/></button>
                   <button className="admin-btn-danger" style={{padding:'0.4rem 0.7rem'}} onClick={()=>handleDelete(a._id)}><Trash2 size={13}/></button>
                 </div>

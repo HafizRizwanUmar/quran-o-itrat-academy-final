@@ -15,21 +15,28 @@ const ArticleDetail = () => {
 
   useEffect(() => {
     const fetchArticleDetail = async () => {
+      console.log('ArticleDetail: Fetching for ID:', id);
       try {
         setLoading(true);
         setError(null);
+        if (!id) throw new Error('No article ID provided');
         const response = await articlesAPI.getById(id);
-        setArticle(response.data.data);
+        console.log('ArticleDetail: API Response:', response.data);
+        if (response.data && response.data.data) {
+          setArticle(response.data.data);
+        } else {
+          throw new Error('Article data not found in response');
+        }
         // Scroll to top when page opens
         window.scrollTo(0, 0);
       } catch (err) {
-        console.error('Error fetching article details:', err);
-        setError('Failed to load article details. Please try again.');
+        console.error('ArticleDetail: Error fetching article details:', err);
+        setError(err.response?.data?.error || err.message || 'Failed to load article details. Please try again.');
       } finally {
         setLoading(false);
       }
     };
-    if (id) fetchArticleDetail();
+    fetchArticleDetail();
   }, [id]);
 
   const formatDate = (dateString) => {
