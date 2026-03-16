@@ -1,0 +1,193 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --forest:     #0a3d2e;
+  --emerald:    #0d5c40;
+  --jade:       #147a54;
+  --mint:       #1a9966;
+  --sage:       #2db882;
+  --gold:       #c9a84c;
+  --gold-light: #e8c96a;
+  --cream:      #fdf8f0;
+  --warm-white: #fffef9;
+  --parchment:  #f5edd8;
+  --ink:        #0e1a14;
+  --charcoal:   #1c2e24;
+  --stone:      #4a6357;
+  --mist:       #8aa89a;
+  --border-soft: rgba(10, 61, 46, 0.12);
+
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-arabic:  'Amiri', serif;
+
+  --shadow-card: 0 2px 16px rgba(10,61,46,0.08),0 1px 4px rgba(10,61,46,0.04);
+  --shadow-lift: 0 8px 40px rgba(10,61,46,0.14),0 2px 8px rgba(10,61,46,0.06);
+
+  --background: var(--warm-white);
+  --foreground: var(--ink);
+  --primary: var(--jade);
+  --primary-foreground: #ffffff;
+  --border: var(--border-soft);
+  --radius: 10px;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);background:var(--warm-white);color:var(--ink);line-height:1.65}
+
+h1,h2,h3,.font-display{font-family:var(--font-display);font-weight:600;letter-spacing:-0.01em;line-height:1.15}
+h1{font-size:clamp(2.4rem,5vw,5rem)}
+h2{font-size:clamp(1.8rem,3.5vw,3.2rem)}
+h3{font-size:clamp(1.2rem,2vw,1.6rem)}
+
+/* Geometric Islamic pattern overlay */
+.geo-pattern{background-image:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23147a54' fill-opacity='0.05'%3E%3Cpath d='M40 0l5.77 10H34.23L40 0zm0 80l5.77-10H34.23L40 80zM0 40l10-5.77V45.77L0 40zm80 0l-10-5.77V45.77L80 40zM40 20l10 17.32H30L40 20zm0 40l10-17.32H30L40 60zM20 40l17.32-10V50L20 40zm40 0L42.68 30V50L60 40z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+
+.gold-line{width:2.5rem;height:2px;background:linear-gradient(to right,var(--gold),var(--gold-light));border-radius:2px;margin:.6rem 0}
+.gold-line-center{width:2.5rem;height:2px;background:linear-gradient(to right,var(--gold),var(--gold-light));border-radius:2px;margin:.6rem auto}
+
+.badge-emerald{display:inline-flex;align-items:center;gap:.3rem;background:rgba(20,122,84,.08);color:var(--jade);font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .8rem;border-radius:100px;border:1px solid rgba(20,122,84,.2)}
+
+.text-gradient-gold{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 60%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.text-gradient-green{background:linear-gradient(135deg,var(--jade) 0%,var(--mint) 60%,var(--sage) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.arabic{font-family:var(--font-arabic);direction:rtl}
+
+::selection{background:rgba(20,122,84,.15);color:var(--forest)}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--parchment)}
+::-webkit-scrollbar-thumb{background:var(--mint);border-radius:3px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes ping2{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.4);opacity:0}}
+
+.animate-fade-up{animation:fadeUp .7s cubic-bezier(.22,1,.36,1) both}
+.skeleton{background:linear-gradient(90deg,#e6ede9 25%,#f0f5f2 50%,#e6ede9 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
+
+/* ─── ADMIN SHARED STYLES ─────────────────────── */
+.admin-card {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid rgba(10,61,46,0.08);
+  box-shadow: 0 2px 12px rgba(10,61,46,0.05);
+}
+.admin-input {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1.5px solid rgba(10,61,46,0.15);
+  border-radius: 8px;
+  padding: 0.6rem 0.875rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.admin-input:focus {
+  border-color: var(--jade);
+  box-shadow: 0 0 0 3px rgba(20,122,84,0.08);
+}
+.admin-btn-primary {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: var(--jade); color: white;
+  font-family: var(--font-body); font-weight: 500; font-size: 0.875rem;
+  padding: 0.55rem 1.25rem; border-radius: 100px; border: none; cursor: pointer;
+  transition: background .2s;
+}
+.admin-btn-primary:hover { background: var(--emerald); }
+.admin-btn-ghost {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: white; color: var(--stone);
+  font-family: var(--font-body); font-weight: 500; font-size: 0.8125rem;
+  padding: 0.45rem 0.875rem; border-radius: 8px;
+  border: 1.5px solid rgba(10,61,46,0.15); cursor: pointer;
+  transition: all .2s;
+}
+.admin-btn-ghost:hover { border-color: var(--jade); color: var(--jade); }
+.admin-btn-danger {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: white; color: #b42828;
+  font-family: var(--font-body); font-weight: 500; font-size: 0.8125rem;
+  padding: 0.45rem 0.875rem; border-radius: 8px;
+  border: 1.5px solid rgba(180,40,40,0.2); cursor: pointer;
+  transition: all .2s;
+}
+.admin-btn-danger:hover { background: rgba(180,40,40,0.05); }
+
+/* ─── ADMIN SHADCN OVERRIDES ─────────────────────
+   Make existing shadcn components align with the
+   forest-green design system across admin pages   */
+
+/* Cards */
+.space-y-6 > .rounded-lg,
+.space-y-6 > [class*="rounded"] {
+  border-color: rgba(10,61,46,0.1) !important;
+  box-shadow: 0 2px 12px rgba(10,61,46,0.05) !important;
+}
+
+/* Page headings in admin */
+.space-y-6 h1.text-2xl,
+.space-y-6 h1[class*="text-2xl"] {
+  font-family: var(--font-display) !important;
+  font-weight: 600 !important;
+  color: var(--forest) !important;
+  font-size: 1.7rem !important;
+}
+
+/* Muted text */
+.text-muted-foreground {
+  color: var(--stone) !important;
+}
+
+/* Primary buttons (teal → jade) */
+.bg-primary, button[class*="bg-primary"] {
+  background-color: var(--jade) !important;
+}
+.bg-primary:hover, button[class*="bg-primary"]:hover {
+  background-color: var(--emerald) !important;
+}
+.text-primary { color: var(--jade) !important; }
+.border-primary { border-color: var(--jade) !important; }
+.ring-primary { --tw-ring-color: rgba(20,122,84,0.25) !important; }
+
+/* Inputs */
+input[class*="border-input"],
+textarea[class*="border-input"] {
+  border-color: rgba(10,61,46,0.18) !important;
+  border-radius: 8px !important;
+  font-family: var(--font-body) !important;
+}
+input[class*="border-input"]:focus,
+textarea[class*="border-input"]:focus {
+  border-color: var(--jade) !important;
+  box-shadow: 0 0 0 3px rgba(20,122,84,0.08) !important;
+}
+
+/* Badges */
+.bg-green-100 { background: rgba(20,122,84,0.1) !important; }
+.text-green-800 { color: var(--jade) !important; }
+.bg-yellow-100 { background: rgba(201,122,42,0.1) !important; }
+.text-yellow-800 { color: #c97a2a !important; }
+.bg-red-100 { background: rgba(180,40,40,0.08) !important; }
+.text-red-800 { color: #b42828 !important; }
+.bg-blue-100 { background: rgba(29,111,163,0.1) !important; }
+.text-blue-800 { color: #1d6fa3 !important; }
+
+/* Table rows */
+tbody tr:hover { background: rgba(20,122,84,0.03) !important; }
+
+/* Dialog / Modal */
+[role="dialog"] { border-radius: 16px !important; border: 1px solid rgba(10,61,46,0.1) !important; }
+
+/* Select trigger */
+button[class*="SelectTrigger"],
+[class*="select-trigger"] {
+  border-color: rgba(10,61,46,0.18) !important;
+  border-radius: 8px !important;
+}
