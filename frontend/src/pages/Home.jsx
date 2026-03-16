@@ -374,7 +374,11 @@ const Home = () => {
                 <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.875rem', color: 'var(--stone)', lineHeight: 1.7, marginBottom: '1.5rem', flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                   {article.content}
                 </p>
-                <Link to={`/articles/${article._id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--jade)', textDecoration: 'none', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '0.9rem' }}>
+                <Link 
+                  to={`/articles/${article._id}`} 
+                  onClick={() => console.log('Home: Navigating to article:', article._id)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--jade)', textDecoration: 'none', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '0.9rem' }}
+                >
                   Read Full Article <ArrowRight size={14} />
                 </Link>
               </div>

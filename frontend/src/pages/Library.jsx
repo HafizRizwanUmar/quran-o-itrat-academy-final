@@ -145,7 +145,10 @@ const Library = () => {
           ))}
           {a.views != null && <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'var(--mist)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}><Eye size={11} />{a.views}</span>}
         </div>
-        <Link to={`/articles/${a._id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: 'var(--jade)', color: 'white', fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: '0.8125rem', padding: '0.6rem', borderRadius: 100, border: 'none', cursor: 'pointer', transition: 'background .2s', textDecoration: 'none' }}
+        <Link 
+          to={`/articles/${a._id}`} 
+          onClick={() => console.log('Library: Navigating to article:', a._id)}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: 'var(--jade)', color: 'white', fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: '0.8125rem', padding: '0.6rem', borderRadius: 100, border: 'none', cursor: 'pointer', transition: 'background .2s', textDecoration: 'none' }}
           onMouseEnter={e => e.currentTarget.style.background = 'var(--emerald)'}
           onMouseLeave={e => e.currentTarget.style.background = 'var(--jade)'}
         >

@@ -88,8 +88,8 @@ const ArticleDetail = () => {
     <div className="min-h-screen bg-[#fdf8f0] pb-24">
       <SEO 
         title={article.title}
-        description={article.content.substring(0, 160)}
-        keywords={`${article.tags?.join(', ')}, ${article.category}, Quran O Itrat Academy, Islamic Articles`}
+        description={typeof article.content === 'string' ? article.content.substring(0, 160) : ""}
+        keywords={`${article.tags?.join(', ') || ''}, ${article.category || ''}, Quran O Itrat Academy, Islamic Articles`}
         ogImage={article.featuredImage}
         ogType="article"
       />
@@ -109,6 +109,7 @@ const ArticleDetail = () => {
           <div className="max-w-5xl mx-auto px-6 pb-12 w-full">
             <Link 
               to="/library" 
+              onClick={() => console.log('ArticleDetail: Navigating to library')}
               className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors group"
             >
               <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-all">
@@ -224,7 +225,7 @@ const ArticleDetail = () => {
                      <p className="font-body text-white/70 text-sm mb-8 leading-relaxed">
                         Join our academy to get deep dives into Quranic sciences and Seerah.
                      </p>
-                     <Link to="/courses" className="block text-center bg-[#c9a84c] hover:bg-[#e8c96a] text-white font-body font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-[#c9a84c]/20">
+                     <Link to="/courses" onClick={() => console.log('ArticleDetail: Navigating to courses')} className="block text-center bg-[#c9a84c] hover:bg-[#e8c96a] text-white font-body font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-[#c9a84c]/20">
                         View Our Courses
                      </Link>
                    </div>
