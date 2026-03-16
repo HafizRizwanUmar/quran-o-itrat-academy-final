@@ -21,9 +21,8 @@ const Footer = () => {
   ];
 
   const socialLinks = [
-    { name: 'Facebook', icon: Facebook, href: '#' },
-    { name: 'Twitter', icon: Twitter, href: '#' },
-    { name: 'Instagram', icon: Instagram, href: '#' },
+    { name: 'Facebook', icon: Facebook, href: 'https://www.facebook.com/share/1CNyLo8tGY/' },
+    { name: 'Instagram', icon: Instagram, href: 'https://www.instagram.com/alquranoitratinstitute?igsh=aTdscG92bjc2bWMz' },
     { name: 'YouTube', icon: Youtube, href: '#' },
   ];
 
