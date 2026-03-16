@@ -164,4 +164,4 @@ const ArticleDetailModal = ({ articleId, isOpen, onClose }) => {
   );
 };
 
-
+export default ArticleDetailModal;
