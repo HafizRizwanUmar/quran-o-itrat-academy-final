@@ -1,10 +1,209 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { articlesAPI } from '../lib/api';
-import { FileText, User, Calendar, Eye, Tag, ArrowLeft, Share2, Facebook, Twitter, Link as LinkIcon, ChevronLeft } from 'lucide-react';
-import { Badge } from '../components/ui/badge';
-import { Button } from '../components/ui/button';
+import { User, Calendar, Eye, Tag, Facebook, Twitter, Link as LinkIcon, ChevronLeft, FileText } from 'lucide-react';
 import SEO from '../components/SEO';
+
+const FontInjector = () => {
+  useEffect(() => {
+    if (document.getElementById('ad-fonts')) return;
+    const link = document.createElement('link');
+    link.id = 'ad-fonts';
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap';
+    document.head.appendChild(link);
+  }, []);
+  return null;
+};
+
+const Styles = () => (
+  <style>{`
+    .ad {
+      --ink: #1a1a1a;
+      --sub: #6b7280;
+      --line: #e5e7eb;
+      --bg: #f9fafb;
+      --white: #ffffff;
+      --green: #15803d;
+      --green-bg: #f0fdf4;
+      min-height: 100vh;
+      background: var(--bg);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      color: var(--ink);
+    }
+
+    /* nav */
+    .ad-nav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(249,250,251,0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      height: 52px;
+      display: flex; align-items: center;
+      padding: 0 clamp(1rem, 5vw, 2.5rem);
+    }
+    .ad-back {
+      display: inline-flex; align-items: center; gap: 5px;
+      color: var(--sub); font-size: 0.82rem; font-weight: 500;
+      text-decoration: none; transition: color 0.15s;
+    }
+    .ad-back:hover { color: var(--ink); }
+
+    /* hero */
+    .ad-hero {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 2.5rem clamp(1rem, 5vw, 2rem) 1.75rem;
+    }
+    .ad-cat {
+      display: inline-block;
+      font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--green); background: var(--green-bg);
+      padding: 3px 9px; border-radius: 4px;
+      margin-bottom: 0.9rem;
+    }
+    .ad-title {
+      font-family: 'DM Serif Display', Georgia, serif;
+      font-size: clamp(1.65rem, 4.5vw, 2.6rem);
+      font-weight: 400; line-height: 1.18;
+      color: var(--ink); margin: 0 0 1.25rem;
+      letter-spacing: -0.01em;
+    }
+    .ad-meta {
+      display: flex; flex-wrap: wrap;
+      align-items: center; gap: 0.4rem 1rem;
+      color: var(--sub); font-size: 0.78rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .ad-meta-item { display: flex; align-items: center; gap: 4px; }
+    .ad-dot { width: 3px; height: 3px; border-radius: 50%; background: #d1d5db; }
+
+    /* image */
+    .ad-img-wrap {
+      max-width: 680px; margin: 0 auto;
+      padding: 0 clamp(1rem, 5vw, 2rem);
+    }
+    .ad-img {
+      width: 100%; aspect-ratio: 16/9;
+      object-fit: cover; border-radius: 8px; display: block;
+    }
+    .ad-img-ph {
+      width: 100%; aspect-ratio: 16/9;
+      background: #f3f4f6; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* layout */
+    .ad-layout {
+      max-width: 680px; margin: 0 auto;
+      padding: 2rem clamp(1rem, 5vw, 2rem) 5rem;
+      display: flex; flex-direction: column; gap: 2rem;
+    }
+
+    /* body text */
+    .ad-body {
+      font-size: 1rem; line-height: 1.9;
+      color: #374151;
+      white-space: pre-wrap;
+      word-break: break-word; overflow-wrap: break-word;
+    }
+    .ad-body::first-letter {
+      font-family: 'DM Serif Display', serif;
+      font-size: 3em; float: left;
+      line-height: 0.85; margin: 0.08em 0.1em 0 0;
+      color: var(--ink);
+    }
+
+    /* tags */
+    .ad-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      padding-top: 1.5rem; border-top: 1px solid var(--line);
+    }
+    .ad-tag {
+      font-size: 0.74rem; color: var(--sub);
+      background: var(--white); border: 1px solid var(--line);
+      border-radius: 99px; padding: 4px 11px;
+      transition: border-color 0.15s, color 0.15s; cursor: default;
+    }
+    .ad-tag:hover { border-color: #9ca3af; color: var(--ink); }
+
+    /* share */
+    .ad-share {
+      display: flex; align-items: center;
+      flex-wrap: wrap; gap: 0.5rem;
+      padding-top: 1.5rem; border-top: 1px solid var(--line);
+    }
+    .ad-share-label { font-size: 0.76rem; color: var(--sub); font-weight: 500; margin-right: 4px; }
+    .ad-share-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.76rem; font-weight: 500;
+      padding: 6px 12px; border-radius: 6px;
+      border: 1px solid var(--line); background: var(--white);
+      color: var(--ink); cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      text-decoration: none;
+    }
+    .ad-share-btn:hover { border-color: #9ca3af; background: #f3f4f6; }
+    .ad-share-btn.ok { color: var(--green); border-color: #bbf7d0; background: var(--green-bg); }
+
+    /* cta */
+    .ad-cta {
+      background: var(--white); border: 1px solid var(--line);
+      border-radius: 8px; padding: 1.1rem 1.4rem;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap; gap: 0.75rem;
+    }
+    .ad-cta p { font-size: 0.85rem; color: var(--sub); margin: 0; }
+    .ad-cta p strong { color: var(--ink); display: block; font-size: 0.88rem; margin-bottom: 2px; }
+    .ad-cta-link {
+      background: var(--ink); color: #fff;
+      font-size: 0.78rem; font-weight: 600;
+      padding: 8px 18px; border-radius: 6px;
+      text-decoration: none; white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .ad-cta-link:hover { background: #111827; }
+
+    /* states */
+    .ad-state {
+      min-height: 100vh; display: flex;
+      align-items: center; justify-content: center;
+      background: var(--bg); flex-direction: column;
+      text-align: center; gap: 0.6rem; padding: 2rem;
+    }
+    .ad-spinner {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 2px solid var(--line); border-top-color: var(--ink);
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ad-state p { color: var(--sub); font-size: 0.85rem; }
+    .ad-err-h {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem; color: var(--ink); margin-top: 0.25rem;
+    }
+    .ad-err-btn {
+      background: var(--ink); color: #fff;
+      padding: 9px 22px; border-radius: 6px;
+      border: none; cursor: pointer;
+      font-size: 0.82rem; font-weight: 600;
+      margin-top: 0.25rem; transition: background 0.15s;
+    }
+    .ad-err-btn:hover { background: #111827; }
+
+    @keyframes up {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .ad-a  { animation: up 0.35s ease both; }
+    .ad-a1 { animation-delay: 0.06s; }
+    .ad-a2 { animation-delay: 0.13s; }
+    .ad-a3 { animation-delay: 0.2s; }
+  `}</style>
+);
 
 const ArticleDetail = () => {
   const { id } = useParams();
@@ -12,227 +211,118 @@ const ArticleDetail = () => {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    const fetchArticleDetail = async () => {
-      console.log('ArticleDetail: Fetching for ID:', id);
+    (async () => {
       try {
-        setLoading(true);
-        setError(null);
-        if (!id) throw new Error('No article ID provided');
-        const response = await articlesAPI.getById(id);
-        console.log('ArticleDetail: API Response:', response.data);
-        if (response.data && response.data.data) {
-          setArticle(response.data.data);
-        } else {
-          throw new Error('Article data not found in response');
-        }
-        // Scroll to top when page opens
+        setLoading(true); setError(null);
+        if (!id) throw new Error('No article ID');
+        const res = await articlesAPI.getById(id);
+        if (res.data?.data) setArticle(res.data.data);
+        else throw new Error('Article not found');
         window.scrollTo(0, 0);
       } catch (err) {
-        console.error('ArticleDetail: Error fetching article details:', err);
-        setError(err.response?.data?.error || err.message || 'Failed to load article details. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArticleDetail();
+        setError(err.response?.data?.error || err.message || 'Failed to load.');
+      } finally { setLoading(false); }
+    })();
   }, [id]);
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
+  const fmt = (d) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
-  const handleShare = (platform) => {
+  const doShare = (p) => {
     const url = window.location.href;
-    const title = article?.title;
-    if (platform === 'facebook') {
-      window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
-    } else if (platform === 'twitter') {
-      window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`, '_blank');
-    } else {
-      navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
-    }
+    if (p === 'fb') window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+    else if (p === 'tw') window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(article?.title)}`, '_blank');
+    else { navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 2000); }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#fdf8f0] flex flex-col items-center justify-center p-6">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#147a54]"></div>
-        <p className="mt-6 text-[#4a6357] font-body text-lg animate-pulse">Consulting the library...</p>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="ad ad-state"><FontInjector /><Styles />
+      <div className="ad-spinner" /><p>Loading…</p>
+    </div>
+  );
 
-  if (error || !article) {
-    return (
-      <div className="min-h-screen bg-[#fdf8f0] flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-white p-10 rounded-3xl shadow-xl max-w-md">
-          <FileText className="h-16 w-16 text-red-400 mx-auto mb-6" />
-          <h2 className="text-2xl font-display font-bold text-[#0e1a14] mb-4">Content Not Accessible</h2>
-          <p className="text-[#4a6357] font-body mb-8">{error || "The article you're looking for doesn't exist."}</p>
-          <Button onClick={() => navigate('/library')} className="bg-[#147a54] hover:bg-[#0d5c40] text-white px-8 h-12 rounded-full">
-             Back to Library
-          </Button>
-        </div>
-      </div>
-    );
-  }
+  if (error || !article) return (
+    <div className="ad ad-state"><FontInjector /><Styles />
+      <FileText size={32} style={{ color: '#d1d5db' }} />
+      <div className="ad-err-h">Article not found</div>
+      <p>{error || "This article doesn't exist."}</p>
+      <button className="ad-err-btn" onClick={() => navigate('/library')}>← Back to Library</button>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-[#fdf8f0] pb-24">
-      <SEO 
+    <div className="ad">
+      <FontInjector /><Styles />
+      <SEO
         title={article.title}
-        description={typeof article.content === 'string' ? article.content.substring(0, 160) : ""}
-        keywords={`${article.tags?.join(', ') || ''}, ${article.category || ''}, Quran O Itrat Academy, Islamic Articles`}
+        description={typeof article.content === 'string' ? article.content.substring(0, 160) : ''}
+        keywords={`${article.tags?.join(', ') || ''}, ${article.category || ''}, Quran O Itrat Academy`}
         ogImage={article.featuredImage}
         ogType="article"
       />
 
-      {/* Hero Header */}
-      <section className="relative h-[45vh] sm:h-[60vh] bg-[#0a3d2e] overflow-hidden">
-        {article.featuredImage ? (
-           <img src={article.featuredImage} alt={article.title} className="w-full h-full object-cover" />
-        ) : (
-           <div className="w-full h-full flex items-center justify-center opacity-30">
-              <FileText size={120} className="text-[#c9a84c]" />
-           </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0e1a14] via-[#0e1a14]/40 to-transparent" />
-        
-        <div className="absolute inset-0 flex flex-col justify-end">
-          <div className="max-w-5xl mx-auto px-6 pb-12 w-full">
-            <Link 
-              to="/library" 
-              onClick={() => console.log('ArticleDetail: Navigating to library')}
-              className="inline-flex items-center text-white/80 hover:text-white mb-8 transition-colors group"
-            >
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mr-3 group-hover:bg-white/20 transition-all">
-                <ChevronLeft size={20} />
-              </div>
-              <span className="font-body text-sm font-medium tracking-wide">Back to Library</span>
-            </Link>
+      {/* nav */}
+      <nav className="ad-nav">
+        <Link to="/library" className="ad-back">
+          <ChevronLeft size={14} /> Library
+        </Link>
+      </nav>
 
-            {article.category && (
-              <Badge className="mb-6 bg-[#c9a84c] text-white border-none py-1.5 px-4 text-xs tracking-widest uppercase font-bold">
-                {article.category}
-              </Badge>
-            )}
-            <h1 className="text-3xl sm:text-5xl md:text-6xl font-display font-bold text-white leading-[1.1] mb-8 max-w-4xl">
-              {article.title}
-            </h1>
-
-            <div className="flex flex-wrap items-center gap-6 text-white/70 font-body text-sm">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mr-3 border border-white/10">
-                  <User size={18} className="text-[#e8c96a]" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-tighter opacity-60 leading-none mb-1">Written by</p>
-                  <p className="text-white font-medium">{article.author}</p>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mr-3 border border-white/10">
-                  <Calendar size={18} className="text-[#e8c96a]" />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase tracking-tighter opacity-60 leading-none mb-1">Published</p>
-                  <p className="text-white font-medium">{formatDate(article.createdAt)}</p>
-                </div>
-              </div>
-              <div className="ml-auto hidden sm:flex items-center bg-white/10 border border-white/10 rounded-full px-5 py-2">
-                 <Eye size={16} className="mr-2 text-[#e8c96a]" />
-                 <span className="font-medium text-white">{article.views} <span className="opacity-60 text-xs">views</span></span>
-              </div>
-            </div>
-          </div>
+      {/* hero */}
+      <header className="ad-hero ad-a">
+        {article.category && <span className="ad-cat">{article.category}</span>}
+        <h1 className="ad-title">{article.title}</h1>
+        <div className="ad-meta">
+          <span className="ad-meta-item"><User size={12} />{article.author}</span>
+          <span className="ad-dot" />
+          <span className="ad-meta-item"><Calendar size={12} />{fmt(article.createdAt)}</span>
+          <span className="ad-dot" />
+          <span className="ad-meta-item"><Eye size={12} />{article.views} views</span>
         </div>
-      </section>
+      </header>
 
-      {/* Main Content Area */}
-      <div className="max-w-5xl mx-auto px-6 -mt-10 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          
-          {/* Main Article Body */}
-          <div className="lg:col-span-8">
-            <div className="bg-white rounded-[2rem] shadow-2xl shadow-[#0a3d2e]/5 border border-white p-8 sm:p-12">
-              <div 
-                className="article-rich-content text-[#1c2e24] text-lg sm:text-xl leading-[1.8] space-y-8 font-body"
-                style={{
-                  whiteSpace: 'pre-wrap',
-                  wordWrap: 'break-word',
-                  overflowWrap: 'break-word'
-                }}
-              >
-                {article.content}
-              </div>
+      {/* image */}
+      <div className="ad-img-wrap ad-a ad-a1">
+        {article.featuredImage
+          ? <img src={article.featuredImage} alt={article.title} className="ad-img" />
+          : <div className="ad-img-ph"><FileText size={28} style={{ color: '#d1d5db' }} /></div>
+        }
+      </div>
 
-              {/* Tags Section */}
-              {article.tags && article.tags.length > 0 && (
-                <div className="mt-16 pt-10 border-t border-gray-100">
-                  <div className="flex items-center mb-5">
-                    <Tag className="h-4 w-4 mr-2 text-[#147a54]" />
-                    <span className="text-xs font-bold uppercase tracking-widest text-[#0e1a14]">Referenced Keywords</span>
-                  </div>
-                  <div className="flex flex-wrap gap-2.5">
-                    {article.tags.map((tag, index) => (
-                      <Badge 
-                        key={index} 
-                        variant="secondary" 
-                        className="px-4 py-2 bg-[#fdf8f0] text-[#4a6357] border-none hover:bg-[#147a54]/10 transition-colors text-sm rounded-lg"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              )}
+      {/* content */}
+      <div className="ad-layout">
+        <article className="ad-a ad-a2">
+          <div className="ad-body">{article.content}</div>
+
+          {article.tags?.length > 0 && (
+            <div className="ad-tags" style={{ marginTop: '1.75rem' }}>
+              {article.tags.map((t, i) => <span key={i} className="ad-tag">#{t}</span>)}
             </div>
+          )}
+
+          <div className="ad-share ad-a ad-a3">
+            <span className="ad-share-label">Share —</span>
+            <button className="ad-share-btn" onClick={() => doShare('fb')}>
+              <Facebook size={12} /> Facebook
+            </button>
+            <button className="ad-share-btn" onClick={() => doShare('tw')}>
+              <Twitter size={12} /> Twitter
+            </button>
+            <button className={`ad-share-btn${copied ? ' ok' : ''}`} onClick={() => doShare('copy')}>
+              <LinkIcon size={12} /> {copied ? 'Copied!' : 'Copy link'}
+            </button>
           </div>
+        </article>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-4">
-             <div className="sticky top-24 space-y-8">
-                {/* Share Card */}
-                <div className="bg-white rounded-3xl p-8 border border-white shadow-xl shadow-[#0a3d2e]/5">
-                   <h3 className="font-display font-bold text-xl text-[#0e1a14] mb-6 flex items-center">
-                     <Share2 size={20} className="mr-3 text-[#147a54]" /> Spread Knowledge
-                   </h3>
-                   <div className="grid grid-cols-1 gap-3">
-                      <Button onClick={() => handleShare('facebook')} className="w-full bg-[#1877F2] hover:bg-[#1877F2]/90 text-white rounded-xl h-12 justify-start px-6">
-                        <Facebook size={18} className="mr-3" /> Facebook
-                      </Button>
-                      <Button onClick={() => handleShare('twitter')} className="w-full bg-[#1DA1F2] hover:bg-[#1DA1F2]/90 text-white rounded-xl h-12 justify-start px-6">
-                        <Twitter size={18} className="mr-3" /> Twitter
-                      </Button>
-                      <Button onClick={() => handleShare('copy')} variant="outline" className="w-full border-gray-200 hover:bg-gray-50 rounded-xl h-12 justify-start px-6">
-                        <LinkIcon size={18} className="mr-3 text-[#147a54]" /> Copy Link
-                      </Button>
-                   </div>
-                </div>
-
-                {/* Newsletter/CTA */}
-                <div className="bg-[#0a3d2e] rounded-3xl p-8 text-white relative overflow-hidden group">
-                   <div className="geo-pattern absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity" />
-                   <div className="relative z-10">
-                     <h3 className="font-display font-bold text-2xl mb-4 leading-tight">Want more authentic content?</h3>
-                     <p className="font-body text-white/70 text-sm mb-8 leading-relaxed">
-                        Join our academy to get deep dives into Quranic sciences and Seerah.
-                     </p>
-                     <Link to="/courses" onClick={() => console.log('ArticleDetail: Navigating to courses')} className="block text-center bg-[#c9a84c] hover:bg-[#e8c96a] text-white font-body font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-[#c9a84c]/20">
-                        View Our Courses
-                     </Link>
-                   </div>
-                </div>
-             </div>
-          </div>
-
+        {/* cta */}
+        <div className="ad-cta ad-a ad-a3">
+          <p>
+            <strong>Explore Quran O Itrat Academy</strong>
+            Deepen your knowledge with our courses and lectures.
+          </p>
+          <Link to="/courses" className="ad-cta-link">View courses →</Link>
         </div>
       </div>
     </div>
