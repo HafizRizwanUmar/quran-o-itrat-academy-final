@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Users, Award, Star, MessageCircle, Clock, CheckCircle2, ChevronRight, Play, Quote } from 'lucide-react';
 import { coursesAPI, articlesAPI } from '../lib/api';
+import SEO from '../components/SEO';
 import homeHeroBg from '../assets/home_hero.png';
 import studentLearningImg from '../assets/student_learning.png';
 
@@ -70,6 +71,11 @@ const Home = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--warm-white)', overflow: 'hidden' }}>
+      <SEO 
+        title="Home"
+        description="Learn Quran, Tafseer, and Seerah with qualified scholars at Quran O Itrat Academy. Explore our comprehensive Islamic courses."
+        keywords="Quran Teaching, Tafseer e Namoona, Tauzeeh ul masil, Islamic Academy, Quran O Itrat, Seerah, Tafseer e Qumi, Tareekh e Tabri"
+      />
 
       {/* ─── HERO ──────────────────────────────────────── */}
       <section style={{ position: 'relative', minHeight: '92vh', display: 'flex', alignItems: 'center', background: 'var(--forest)' }}>

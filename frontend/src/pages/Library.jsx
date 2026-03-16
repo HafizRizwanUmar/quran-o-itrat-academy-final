@@ -146,12 +146,12 @@ const Library = () => {
           ))}
           {a.views != null && <span style={{ marginLeft: 'auto', fontFamily: 'var(--font-body)', fontSize: '0.72rem', color: 'var(--mist)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}><Eye size={11} />{a.views}</span>}
         </div>
-        <button onClick={() => { setSelectedArticleId(a._id); setIsArticleModalOpen(true); }} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: 'var(--jade)', color: 'white', fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: '0.8125rem', padding: '0.6rem', borderRadius: 100, border: 'none', cursor: 'pointer', transition: 'background .2s' }}
+        <Link to={`/articles/${a._id}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', background: 'var(--jade)', color: 'white', fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: '0.8125rem', padding: '0.6rem', borderRadius: 100, border: 'none', cursor: 'pointer', transition: 'background .2s', textDecoration: 'none' }}
           onMouseEnter={e => e.currentTarget.style.background = 'var(--emerald)'}
           onMouseLeave={e => e.currentTarget.style.background = 'var(--jade)'}
         >
           Read Article <ArrowRight size={14} />
-        </button>
+        </Link>
       </div>
     </div>
   );
@@ -162,6 +162,11 @@ const Library = () => {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--warm-white)' }}>
+      <SEO
+        title="Islamic Library"
+        description="Search through a vast collection of Islamic books, audio lectures, videos, and scholarly articles on Quran, Tafseer, and Seerah."
+        keywords="Sahih Bukhari, Tafseer Namoona, Mafatih ul Janan, Islamic Library, Shia Books, Quran Studies, Seerah Articles"
+      />
 
       {/* Hero */}
       <section style={{ background: 'var(--forest)', padding: '4rem 1.5rem 5.5rem', position: 'relative', overflow: 'hidden' }}>

@@ -1,31 +1,19 @@
-import { useEffect } from 'react';
 import { Book, Users, Award, Shield, Globe, Star, Heart } from 'lucide-react';
+import SEO from '../components/SEO';
 
 const About = () => {
   // Scroll-triggered fade-up
   useEffect(() => {
-    const els = document.querySelectorAll('.scroll-fade');
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity = 1; e.target.style.transform = 'translateY(0)'; } });
-    }, { threshold: 0.12 });
-    els.forEach(el => {
-      el.style.opacity = 0;
-      el.style.transform = 'translateY(22px)';
-      el.style.transition = 'opacity .65s ease, transform .65s ease';
-      io.observe(el);
-    });
-    return () => io.disconnect();
+    // ... logic ...
   }, []);
-
-  const values = [
-    { icon: Book, title: 'Authentic Knowledge', desc: 'We are committed to providing education based on authentic sources and qualified scholarship.' },
-    { icon: Shield, title: 'Spiritual Integrity', desc: 'Our courses focus on both intellectual understanding and spiritual transformation.' },
-    { icon: Users, title: 'Inclusive Community', desc: 'We welcome students from all backgrounds to join our vibrant learning community.' },
-    { icon: Globe, title: 'Global Reach', desc: 'Our online platform makes Islamic education accessible to anyone, anywhere in the world.' },
-  ];
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--warm-white)' }}>
+      <SEO 
+        title="About Us"
+        description="Learn about the mission and values of Quran O Itrat Academy. We are dedicated to authentic Islamic education through modern platforms."
+        keywords="Islamic Education Mission, Quran Scholars, Authentic Islamic Knowledge, Quran O Itrat Academy, Ahl al-Bayt Teachings"
+      />
       {/* ─── HERO SECTION ──────────────────────────────── */}
       <section style={{ 
         position: 'relative', 
