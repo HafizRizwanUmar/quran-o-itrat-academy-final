@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { articlesAPI } from '../lib/api';
-import { User, Calendar, Eye, Tag, Facebook, Twitter, Link as LinkIcon, ChevronLeft, FileText } from 'lucide-react';
+import { User, Calendar, Eye, Facebook, Twitter, Link as LinkIcon, ChevronLeft, FileText } from 'lucide-react';
 import SEO from '../components/SEO';
 
 const FontInjector = () => {
@@ -35,7 +35,7 @@ const Styles = () => (
     /* nav */
     .ad-nav {
       position: sticky; top: 0; z-index: 50;
-      background: rgba(249,250,251,0.9);
+      background: rgba(249,250,251,0.92);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid var(--line);
       height: 52px;
@@ -49,78 +49,63 @@ const Styles = () => (
     }
     .ad-back:hover { color: var(--ink); }
 
-    /* hero */
-    .ad-hero {
+    /* main column */
+    .ad-col {
       max-width: 680px;
       margin: 0 auto;
-      padding: 2.5rem clamp(1rem, 5vw, 2rem) 1.75rem;
+      padding: 2.75rem clamp(1rem, 5vw, 2rem) 5rem;
+      display: flex; flex-direction: column; gap: 2rem;
     }
+
+    /* category */
     .ad-cat {
       display: inline-block;
       font-size: 0.68rem; font-weight: 600;
       letter-spacing: 0.1em; text-transform: uppercase;
       color: var(--green); background: var(--green-bg);
       padding: 3px 9px; border-radius: 4px;
-      margin-bottom: 0.9rem;
+      margin-bottom: 0.75rem;
     }
+
+    /* title */
     .ad-title {
       font-family: 'DM Serif Display', Georgia, serif;
-      font-size: clamp(1.65rem, 4.5vw, 2.6rem);
+      font-size: clamp(1.75rem, 4.5vw, 2.6rem);
       font-weight: 400; line-height: 1.18;
-      color: var(--ink); margin: 0 0 1.25rem;
+      color: var(--ink); margin: 0 0 1.1rem;
       letter-spacing: -0.01em;
     }
+
+    /* meta */
     .ad-meta {
       display: flex; flex-wrap: wrap;
       align-items: center; gap: 0.4rem 1rem;
       color: var(--sub); font-size: 0.78rem;
-      padding-bottom: 1.5rem;
+      padding-bottom: 1.75rem;
       border-bottom: 1px solid var(--line);
     }
     .ad-meta-item { display: flex; align-items: center; gap: 4px; }
     .ad-dot { width: 3px; height: 3px; border-radius: 50%; background: #d1d5db; }
 
-    /* image */
-    .ad-img-wrap {
-      max-width: 680px; margin: 0 auto;
-      padding: 0 clamp(1rem, 5vw, 2rem);
-    }
-    .ad-img {
-      width: 100%; aspect-ratio: 16/9;
-      object-fit: cover; border-radius: 8px; display: block;
-    }
-    .ad-img-ph {
-      width: 100%; aspect-ratio: 16/9;
-      background: #f3f4f6; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* layout */
-    .ad-layout {
-      max-width: 680px; margin: 0 auto;
-      padding: 2rem clamp(1rem, 5vw, 2rem) 5rem;
-      display: flex; flex-direction: column; gap: 2rem;
-    }
-
     /* body text */
     .ad-body {
-      font-size: 1rem; line-height: 1.9;
+      font-size: 1.02rem; line-height: 1.9;
       color: #374151;
       white-space: pre-wrap;
       word-break: break-word; overflow-wrap: break-word;
     }
     .ad-body::first-letter {
       font-family: 'DM Serif Display', serif;
-      font-size: 3em; float: left;
-      line-height: 0.85; margin: 0.08em 0.1em 0 0;
+      font-size: 3.2em; float: left;
+      line-height: 0.82; margin: 0.08em 0.1em 0 0;
       color: var(--ink);
     }
 
+    /* divider */
+    .ad-rule { border: none; border-top: 1px solid var(--line); margin: 0; }
+
     /* tags */
-    .ad-tags {
-      display: flex; flex-wrap: wrap; gap: 6px;
-      padding-top: 1.5rem; border-top: 1px solid var(--line);
-    }
+    .ad-tags { display: flex; flex-wrap: wrap; gap: 6px; }
     .ad-tag {
       font-size: 0.74rem; color: var(--sub);
       background: var(--white); border: 1px solid var(--line);
@@ -133,9 +118,11 @@ const Styles = () => (
     .ad-share {
       display: flex; align-items: center;
       flex-wrap: wrap; gap: 0.5rem;
-      padding-top: 1.5rem; border-top: 1px solid var(--line);
     }
-    .ad-share-label { font-size: 0.76rem; color: var(--sub); font-weight: 500; margin-right: 4px; }
+    .ad-share-label {
+      font-size: 0.76rem; color: var(--sub);
+      font-weight: 500; margin-right: 2px;
+    }
     .ad-share-btn {
       display: inline-flex; align-items: center; gap: 5px;
       font-size: 0.76rem; font-weight: 500;
@@ -143,10 +130,12 @@ const Styles = () => (
       border: 1px solid var(--line); background: var(--white);
       color: var(--ink); cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
-      text-decoration: none;
     }
     .ad-share-btn:hover { border-color: #9ca3af; background: #f3f4f6; }
-    .ad-share-btn.ok { color: var(--green); border-color: #bbf7d0; background: var(--green-bg); }
+    .ad-share-btn.ok {
+      color: var(--green); border-color: #bbf7d0;
+      background: var(--green-bg);
+    }
 
     /* cta */
     .ad-cta {
@@ -157,7 +146,7 @@ const Styles = () => (
       flex-wrap: wrap; gap: 0.75rem;
     }
     .ad-cta p { font-size: 0.85rem; color: var(--sub); margin: 0; }
-    .ad-cta p strong { color: var(--ink); display: block; font-size: 0.88rem; margin-bottom: 2px; }
+    .ad-cta p strong { color: var(--ink); display: block; margin-bottom: 2px; }
     .ad-cta-link {
       background: var(--ink); color: #fff;
       font-size: 0.78rem; font-weight: 600;
@@ -199,9 +188,9 @@ const Styles = () => (
       to   { opacity: 1; transform: translateY(0); }
     }
     .ad-a  { animation: up 0.35s ease both; }
-    .ad-a1 { animation-delay: 0.06s; }
-    .ad-a2 { animation-delay: 0.13s; }
-    .ad-a3 { animation-delay: 0.2s; }
+    .ad-a1 { animation-delay: 0.07s; }
+    .ad-a2 { animation-delay: 0.14s; }
+    .ad-a3 { animation-delay: 0.21s; }
   `}</style>
 );
 
@@ -228,7 +217,8 @@ const ArticleDetail = () => {
     })();
   }, [id]);
 
-  const fmt = (d) => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const fmt = (d) =>
+    new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
   const doShare = (p) => {
     const url = window.location.href;
@@ -259,62 +249,57 @@ const ArticleDetail = () => {
         title={article.title}
         description={typeof article.content === 'string' ? article.content.substring(0, 160) : ''}
         keywords={`${article.tags?.join(', ') || ''}, ${article.category || ''}, Quran O Itrat Academy`}
-        ogImage={article.featuredImage}
         ogType="article"
       />
 
-      {/* nav */}
+      {/* sticky nav */}
       <nav className="ad-nav">
         <Link to="/library" className="ad-back">
           <ChevronLeft size={14} /> Library
         </Link>
       </nav>
 
-      {/* hero */}
-      <header className="ad-hero ad-a">
-        {article.category && <span className="ad-cat">{article.category}</span>}
-        <h1 className="ad-title">{article.title}</h1>
-        <div className="ad-meta">
-          <span className="ad-meta-item"><User size={12} />{article.author}</span>
-          <span className="ad-dot" />
-          <span className="ad-meta-item"><Calendar size={12} />{fmt(article.createdAt)}</span>
-          <span className="ad-dot" />
-          <span className="ad-meta-item"><Eye size={12} />{article.views} views</span>
-        </div>
-      </header>
+      <div className="ad-col">
 
-      {/* image */}
-      <div className="ad-img-wrap ad-a ad-a1">
-        {article.featuredImage
-          ? <img src={article.featuredImage} alt={article.title} className="ad-img" />
-          : <div className="ad-img-ph"><FileText size={28} style={{ color: '#d1d5db' }} /></div>
-        }
-      </div>
+        {/* header */}
+        <header className="ad-a">
+          {article.category && <div><span className="ad-cat">{article.category}</span></div>}
+          <h1 className="ad-title">{article.title}</h1>
+          <div className="ad-meta">
+            <span className="ad-meta-item"><User size={12} />{article.author}</span>
+            <span className="ad-dot" />
+            <span className="ad-meta-item"><Calendar size={12} />{fmt(article.createdAt)}</span>
+            <span className="ad-dot" />
+            <span className="ad-meta-item"><Eye size={12} />{article.views} views</span>
+          </div>
+        </header>
 
-      {/* content */}
-      <div className="ad-layout">
-        <article className="ad-a ad-a2">
-          <div className="ad-body">{article.content}</div>
+        {/* article body */}
+        <div className="ad-body ad-a ad-a1">{article.content}</div>
 
-          {article.tags?.length > 0 && (
-            <div className="ad-tags" style={{ marginTop: '1.75rem' }}>
+        {/* tags */}
+        {article.tags?.length > 0 && (
+          <>
+            <hr className="ad-rule" />
+            <div className="ad-tags ad-a ad-a2">
               {article.tags.map((t, i) => <span key={i} className="ad-tag">#{t}</span>)}
             </div>
-          )}
+          </>
+        )}
 
-          <div className="ad-share ad-a ad-a3">
-            <span className="ad-share-label">Share —</span>
-            <button className="ad-share-btn" onClick={() => doShare('fb')}>
-              <Facebook size={12} /> Facebook
-            </button>
-            <button className="ad-share-btn" onClick={() => doShare('tw')}>
-              <Twitter size={12} /> Twitter
-            </button>
-            <button className={`ad-share-btn${copied ? ' ok' : ''}`} onClick={() => doShare('copy')}>
-              <LinkIcon size={12} /> {copied ? 'Copied!' : 'Copy link'}
-            </button>
-          </div>
-        </article>
+        {/* share */}
+        <div className="ad-share ad-a ad-a2">
+          <span className="ad-share-label">Share —</span>
+          <button className="ad-share-btn" onClick={() => doShare('fb')}>
+            <Facebook size={12} /> Facebook
+          </button>
+          <button className="ad-share-btn" onClick={() => doShare('tw')}>
+            <Twitter size={12} /> Twitter
+          </button>
+          <button className={`ad-share-btn${copied ? ' ok' : ''}`} onClick={() => doShare('copy')}>
+            <LinkIcon size={12} /> {copied ? 'Copied!' : 'Copy link'}
+          </button>
+        </div>
 
         {/* cta */}
         <div className="ad-cta ad-a ad-a3">
@@ -324,6 +309,7 @@ const ArticleDetail = () => {
           </p>
           <Link to="/courses" className="ad-cta-link">View courses →</Link>
         </div>
+
       </div>
     </div>
   );
