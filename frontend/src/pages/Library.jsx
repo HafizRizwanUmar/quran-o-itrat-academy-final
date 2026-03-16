@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Search, Filter, Download, Eye, BookOpen, FileText, Headphones, Video, Star, Clock, User, Calendar, ArrowRight, Grid, List, X } from 'lucide-react';
 import { libraryAPI, articlesAPI } from '../lib/api';
 import LibraryMaterialDetailModal from './LibraryMaterialDetailModal';
-import ArticleDetailModal from './ArticleDetailModal';
+import SEO from '../components/SEO';
 
 const CATEGORY_MAP = {
   books:     { Icon: BookOpen,  bg: 'rgba(20,122,84,0.08)',  color: '#147a54', border: 'rgba(20,122,84,0.2)',  label: 'Books' },

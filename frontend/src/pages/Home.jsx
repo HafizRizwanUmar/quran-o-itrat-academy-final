@@ -331,6 +331,58 @@ const Home = () => {
         </div>
       </section>
 
+      {/* ─── RECENT ARTICLES ───────────────────────────── */}
+      <section style={{ padding: '5rem 0', background: 'white', position: 'relative' }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 1.5rem' }}>
+          <div className="scroll-fade" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <div className="badge-emerald" style={{ marginBottom: '0.75rem' }}>Knowledge Sharing</div>
+              <h2 style={{ fontFamily: 'var(--font-display)', color: 'var(--forest)', margin: 0 }}>
+                Latest Articles
+              </h2>
+              <div className="gold-line" style={{ marginTop: '0.75rem' }} />
+            </div>
+            <Link to="/library" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--jade)', textDecoration: 'none', fontFamily: 'var(--font-body)', fontWeight: 500, fontSize: '0.9rem', transition: 'gap .2s' }}
+              onMouseEnter={e => e.currentTarget.style.gap = '0.7rem'}
+              onMouseLeave={e => e.currentTarget.style.gap = '0.4rem'}
+            >
+              Explore Library <ArrowRight size={16} />
+            </Link>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: '2rem' }}>
+            {recentArticles.map((article, i) => (
+              <div key={i} className="scroll-fade" style={{
+                background: 'var(--warm-white)', borderRadius: 20, padding: '2rem',
+                border: '1px solid rgba(10,61,46,0.06)',
+                display: 'flex', flexDirection: 'column',
+                transition: 'all .3s ease',
+                transitionDelay: `${i * 100}ms`
+              }}
+                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 12px 40px rgba(10,61,46,0.1)'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.background = 'white'; }}
+                onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'none'; e.currentTarget.style.background = 'var(--warm-white)'; }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(10,61,46,0.08)' }}>
+                    <BookOpen size={20} color="var(--jade)" />
+                  </div>
+                  <span style={{ fontFamily: 'var(--font-body)', fontSize: '0.75rem', color: 'var(--mist)', fontWeight: 500 }}>
+                    {new Date(article.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </div>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '1.25rem', fontWeight: 600, color: 'var(--forest)', marginBottom: '0.75rem', lineHeight: 1.3 }}>{article.title}</h3>
+                <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.875rem', color: 'var(--stone)', lineHeight: 1.7, marginBottom: '1.5rem', flex: 1, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {article.content}
+                </p>
+                <Link to={`/articles/${article._id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', color: 'var(--jade)', textDecoration: 'none', fontFamily: 'var(--font-body)', fontWeight: 600, fontSize: '0.9rem' }}>
+                  Read Full Article <ArrowRight size={14} />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── TESTIMONIALS ──────────────────────────────── */}
       <section style={{ padding: '5rem 0', background: 'var(--parchment)', position: 'relative', overflow: 'hidden' }}>
         <div className="geo-pattern-gold" style={{ position: 'absolute', inset: 0 }} />
