@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
 import { articlesAPI } from '../lib/api';
-import { FileText, User, Calendar, Eye, Tag } from 'lucide-react';
+import { FileText, User, Calendar, Eye, Tag, X } from 'lucide-react';
 import { Badge } from '../components/ui/badge';
 
 const ArticleDetailModal = ({ articleId, isOpen, onClose }) => {
@@ -39,107 +39,129 @@ const ArticleDetailModal = ({ articleId, isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] max-h-[80vh] overflow-y-auto p-6">
-        <DialogHeader>
-          {loading && <DialogTitle>Loading Article...</DialogTitle>}
-          {error && <DialogTitle className="text-red-500">Error</DialogTitle>}
-          {article && (
-            <div>
-              <DialogTitle className="text-2xl font-bold text-gray-900 mb-2">
-                {article.title}
-              </DialogTitle>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                <div className="flex items-center">
-                  <User className="h-4 w-4 mr-1" />
-                  <span>{article.author}</span>
-                </div>
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  <span>{formatDate(article.createdAt)}</span>
-                </div>
-                <div className="flex items-center">
-                  <Eye className="h-4 w-4 mr-1" />
-                  <span>{article.views} views</span>
-                </div>
-                {article.category && (
-                  <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-200">
-                    {article.category}
-                  </Badge>
-                )}
-              </div>
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto p-0 border-none bg-white">
+        {/* Header Header */}
+        <div className="relative h-48 sm:h-64 w-full">
+          {article?.featuredImage ? (
+            <img 
+              src={article.featuredImage} 
+              alt={article.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-forest flex items-center justify-center relative overflow-hidden">
+               <div className="geo-pattern absolute inset-0 opacity-20" />
+               <FileText className="h-16 w-16 text-gold/40" />
             </div>
           )}
-        </DialogHeader>
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
-            <p className="mt-4 text-gray-600">Loading article...</p>
-          </div>
-        ) : error ? (
-          <div className="text-center py-8 text-red-600">
-            <p>{error}</p>
-            <Button onClick={onClose} className="mt-4">Close</Button>
-          </div>
-        ) : article ? (
-          <div className="grid gap-6 py-4">
-            {article.featuredImage && (
-              <div className="w-full">
-                <img 
-                  src={article.featuredImage} 
-                  alt={article.title}
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-              </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+          <div className="absolute bottom-0 left-0 p-6 sm:p-8 w-full">
+            {article?.category && (
+               <Badge className="mb-3 bg-gold text-white border-none hover:bg-gold-light">
+                 {article.category}
+               </Badge>
             )}
-            
-            <div className="prose prose-gray max-w-none">
-              <div 
-                className="text-gray-700 leading-relaxed"
-                style={{
-                  whiteSpace: 'pre-wrap',
-                  wordWrap: 'break-word',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'break-word',
-                  hyphens: 'auto',
-                  maxWidth: '100%',
-                  width: '100%'
-                }}
-              >
-                {article.content}
+            <h2 className="text-2xl sm:text-3xl font-display font-bold text-white leading-tight">
+              {article?.title || 'Loading Article...'}
+            </h2>
+          </div>
+          <button 
+            onClick={onClose}
+            className="absolute top-4 right-4 z-10 p-2 rounded-full bg-black/20 hover:bg-black/40 text-white transition-colors backdrop-blur-sm"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="p-6 sm:p-8">
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-jade"></div>
+              <p className="mt-4 text-stone font-body">Preparing article content...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12">
+              <p className="text-red-600 font-body">{error}</p>
+              <Button onClick={onClose} className="mt-6 bg-jade hover:bg-emerald">Return to Library</Button>
+            </div>
+          ) : article ? (
+            <div className="space-y-8">
+              {/* Meta Info */}
+              <div className="flex flex-wrap items-center gap-6 py-4 border-y border-border/50 text-sm text-stone font-body">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-jade/10 flex items-center justify-center mr-3">
+                    <User className="h-4 w-4 text-jade" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-mist font-semibold leading-none mb-1">Author</p>
+                    <p className="font-medium text-forest">{article.author}</p>
+                  </div>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-jade/10 flex items-center justify-center mr-3">
+                    <Calendar className="h-4 w-4 text-jade" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wider text-mist font-semibold leading-none mb-1">Published</p>
+                    <p className="font-medium text-forest">{formatDate(article.createdAt)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center ml-auto">
+                  <Eye className="h-4 w-4 mr-1.5 text-mist" />
+                  <span className="font-medium">{article.views} <span className="text-mist font-normal">views</span></span>
+                </div>
+              </div>
+              
+              {/* Content Body */}
+              <div className="article-content">
+                <div 
+                  className="text-gray-800 text-lg leading-relaxed space-y-4 font-body"
+                  style={{
+                    whiteSpace: 'pre-wrap',
+                    wordWrap: 'break-word',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word'
+                  }}
+                >
+                  {article.content}
+                </div>
+              </div>
+              
+              {/* Tags Section */}
+              {article.tags && article.tags.length > 0 && (
+                <div className="pt-8 border-t border-border/50">
+                  <div className="flex items-center mb-4">
+                    <Tag className="h-4 w-4 mr-2 text-jade" />
+                    <span className="text-xs font-bold uppercase tracking-widest text-forest">Reference Tags</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {article.tags.map((tag, index) => (
+                      <Badge 
+                        key={index} 
+                        variant="secondary" 
+                        className="px-3 py-1 bg-jade/5 text-jade border-jade/10 hover:bg-jade/10 transition-colors"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <div className="flex justify-center pt-8">
+                <Button 
+                  onClick={onClose} 
+                  className="bg-forest hover:bg-emerald text-white px-8 py-6 rounded-full font-body font-medium shadow-lg hover:shadow-xl transition-all"
+                >
+                  Finished Reading
+                </Button>
               </div>
             </div>
-            
-            {article.tags && article.tags.length > 0 && (
-              <div className="border-t pt-4">
-                <div className="flex items-center mb-2">
-                  <Tag className="h-4 w-4 mr-2 text-gray-500" />
-                  <span className="text-sm font-medium text-gray-700">Tags:</span>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {article.tags.map((tag, index) => (
-                    <Badge 
-                      key={index} 
-                      variant="outline" 
-                      className="text-xs bg-gray-50 text-gray-600 border-gray-200"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div className="flex justify-end pt-4 border-t">
-              <Button onClick={onClose} variant="outline" className="mr-2">
-                Close
-              </Button>
-            </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default ArticleDetailModal;
 
