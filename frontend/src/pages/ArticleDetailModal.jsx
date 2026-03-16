@@ -39,7 +39,10 @@ const ArticleDetailModal = ({ articleId, isOpen, onClose }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto p-0 border-none bg-white">
+      <DialogContent 
+        className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto p-0 border-none !bg-white"
+        style={{ backgroundColor: 'white', direction: 'ltr' }}
+      >
         {/* Header Header */}
         <div className="relative h-48 sm:h-64 w-full">
           {article?.featuredImage ? (
