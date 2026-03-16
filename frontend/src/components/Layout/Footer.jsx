@@ -154,9 +154,19 @@ const Footer = () => {
 
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', padding: '1.5rem 0', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem' }}>
-          <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            © {currentYear} Quran O Itrat Academy. Made with <Heart size={11} color="var(--gold)" fill="var(--gold)" /> in Pakistan.
-          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '1rem' }}>
+            <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              © {currentYear} Quran O Itrat Academy.
+            </p>
+            <span style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.2)' }}>|</span>
+            <p style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+              Developed by <a href="https://minderfly.com" target="_blank" rel="noopener noreferrer" 
+                style={{ color: 'var(--gold)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--gold-light)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--gold)'}
+              >minderfly.com</a> — <span style={{ opacity: 0.8 }}>Premium Software Agency</span>
+            </p>
+          </div>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             {['Privacy Policy', 'Terms of Service'].map(t => (
               <Link key={t} to="/" style={{ fontSize: '0.8125rem', color: 'rgba(255,255,255,0.4)', textDecoration: 'none', transition: 'color .2s' }}
