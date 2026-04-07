@@ -139,7 +139,7 @@ const Footer = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               {[
                 { Icon: MapPin, text: 'Q Block Model Town\nLahore, Pakistan' },
-                { Icon: Phone, text: '+92 (306) 909-8690' },
+                { Icon: Phone, text: '+92 (328) 056-3616' },
                 { Icon: Mail, text: 'academyquranoitrat@gmail.com' },
               ].map(({ Icon, text }, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.6rem' }}>

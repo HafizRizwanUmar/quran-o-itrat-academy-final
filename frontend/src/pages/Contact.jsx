@@ -27,7 +27,7 @@ function Contact() {
 
   const contactCards = [
     { icon: MapPin, title: 'Our Location', lines: ['Q Block Model Town', 'Lahore, Pakistan'], accent: 'var(--jade)' },
-    { icon: Phone, title: 'Phone', lines: ['+92 306 909 8690'], accent: '#1d6fa3' },
+    { icon: Phone, title: 'Phone', lines: ['+92 328 056 3616'], accent: '#1d6fa3' },
     { icon: Mail, title: 'Email', lines: ['academyquranoitrat@gmail.com'], accent: '#7c4db8' },
     { icon: Clock, title: 'Availability', lines: ['24/7 Available', 'Always here to help'], accent: 'var(--gold)' },
   ];

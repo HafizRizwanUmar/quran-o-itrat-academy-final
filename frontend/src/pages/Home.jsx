@@ -46,7 +46,7 @@ const Home = () => {
 
   const handleWhatsApp = () => {
     const msg = 'Hello! I am interested in learning more about Quran O Itrat Academy courses.';
-    window.open(`https://wa.me/923069098690?text=${encodeURIComponent(msg)}`, '_blank');
+    window.open(`https://wa.me/923280563616?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const features = [

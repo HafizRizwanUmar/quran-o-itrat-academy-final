@@ -169,7 +169,7 @@ const sendContactAutoReply = async (contact) => {
     </table>
 
     <p style="margin:0 0 8px;font-size:14px;color:#4a6357;">For urgent queries you can also reach us at:</p>
-    <p style="margin:0;font-size:14px;color:#147a54;font-weight:600;">+92 (306) 909-8690</p>
+    <p style="margin:0;font-size:14px;color:#147a54;font-weight:600;">+92 (328) 056-3616</p>
 
     <p style="margin:24px 0 0;font-size:13px;color:#888;">
       Jazak Allah Khayr<br/><strong style="color:#0a3d2e;">Quran O Itrat Academy Team</strong>
@@ -252,7 +252,7 @@ const sendAdmissionAutoReply = async (admission, courseName) => {
       <ul style="margin:8px 0 0;padding-left:18px;color:#4a6357;font-size:13px;line-height:1.9;">
         <li>Our team will review your application</li>
         <li>You will receive a confirmation email with next steps</li>
-        <li>For enquiries: <strong>+92 (306) 909-8690</strong></li>
+        <li>For enquiries: <strong>+92 (328) 056-3616</strong></li>
       </ul>
     </div>
 
