@@ -11,7 +11,7 @@ const lbl = { fontFamily:'var(--font-body)', fontSize:'0.8rem', fontWeight:600, 
 
 const FILE_EMOJI = { pdf:'📄', doc:'📝', docx:'📝', ppt:'📊', pptx:'📊', xls:'📈', xlsx:'📈', txt:'📄' };
 
-const EMPTY_FORM = { title:'', description:'', courseId:'', lessonNumber:'' };
+const EMPTY_FORM = { title:'', description:'', courseId:'', lessonNumber:'', externalLink:'' };
 
 const AdminStudyMaterials = () => {
   const [materials, setMaterials]         = useState([]);
@@ -29,6 +29,7 @@ const AdminStudyMaterials = () => {
   const [formData, setFormData]           = useState(EMPTY_FORM);
   const [formError, setFormError]         = useState('');
   const [saving, setSaving]               = useState(false);
+  const [uploadMode, setUploadMode]       = useState('file'); // 'file' | 'link'
   const fileRef = useRef(null);
 
   const fetchMaterials = async (page=1, search='', courseId='') => {
@@ -41,11 +42,16 @@ const AdminStudyMaterials = () => {
   useEffect(()=>{coursesAPI.getAll({limit:100}).then(r=>setCourses(r.data.data)).catch(()=>{});}, []);
   useEffect(()=>{fetchMaterials(currentPage, searchTerm, courseFilter);},[currentPage,searchTerm,courseFilter]);
 
-  const closeModal = () => { setIsModalOpen(false); setFormData(EMPTY_FORM); setSelectedFile(null); setFormError(''); setDragActive(false); };
+  const closeModal = () => { setIsModalOpen(false); setFormData(EMPTY_FORM); setSelectedFile(null); setFormError(''); setDragActive(false); setUploadMode('file'); };
 
   const handleFileSelect = file => {
     const allowed = ['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation','text/plain','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
     if (!allowed.includes(file.type)) { setFormError('Allowed: PDF, DOC, DOCX, PPT, PPTX, TXT, XLS, XLSX'); return; }
+    if (file.size > 10*1024*1024) {
+      setFormError('⚠️ File exceeds 10MB limit. Please upload to Google Drive and use the "External Link" option instead.');
+      setSelectedFile(null);
+      return;
+    }
     if (file.size > 50*1024*1024) { setFormError('Max file size is 50MB'); return; }
     setSelectedFile(file); setFormError('');
   };
@@ -56,12 +62,15 @@ const AdminStudyMaterials = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     if (!formData.courseId) { setFormError('Please select a course'); return; }
-    if (!selectedFile) { setFormError('Please select a file'); return; }
+    if (uploadMode === 'file' && !selectedFile) { setFormError('Please select a file'); return; }
+    if (uploadMode === 'link' && !formData.externalLink.trim()) { setFormError('Please enter a Google Drive link'); return; }
+    if (uploadMode === 'link' && !formData.externalLink.trim().startsWith('http')) { setFormError('Please enter a valid URL'); return; }
     setSaving(true); setFormError('');
     try {
       const fd = new FormData();
-      Object.entries(formData).forEach(([k,v]) => fd.append(k, v));
-      fd.append('file', selectedFile);
+      Object.entries(formData).forEach(([k,v]) => { if (k !== 'externalLink') fd.append(k, v); });
+      if (uploadMode === 'file') fd.append('file', selectedFile);
+      if (uploadMode === 'link') fd.append('externalLink', formData.externalLink.trim());
       await studyMaterialsAPI.create(fd);
       closeModal(); fetchMaterials(currentPage, searchTerm, courseFilter);
     } catch(e){ setFormError(e.response?.data?.error||'Upload failed'); }
@@ -190,9 +199,15 @@ const AdminStudyMaterials = () => {
             </div>
             <form onSubmit={handleSubmit} style={{flex:1,overflowY:'auto',padding:'1.5rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
 
-              {/* File drop zone */}
-              <div>
-                <p style={lbl}>File <span style={{color:'var(--jade)'}}>*</span></p>
+              {/* Mode toggle */}
+              <div style={{display:'flex',gap:'0.5rem',background:'var(--cream)',borderRadius:10,padding:'0.3rem'}}>
+                {[{v:'file',l:'📁 Upload File'},{v:'link',l:'🔗 External Link (Google Drive)'}].map(({v,l})=>(
+                  <button key={v} type="button" onClick={()=>{setUploadMode(v);setSelectedFile(null);setFormError('');}} style={{flex:1,fontFamily:'var(--font-body)',fontSize:'0.8rem',fontWeight:600,padding:'0.5rem 0.75rem',borderRadius:8,border:'none',cursor:'pointer',background:uploadMode===v?'white':'transparent',color:uploadMode===v?'var(--jade)':'var(--stone)',boxShadow:uploadMode===v?'0 1px 4px rgba(0,0,0,0.1)':'none',transition:'all .2s'}}>{l}</button>
+                ))}
+              </div>
+
+              {/* File drop zone OR External link */}
+              {uploadMode === 'file' ? (
                 <div onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
                   onClick={()=>fileRef.current?.click()}
                   style={{border:`2px dashed ${dragActive?'var(--jade)':'rgba(10,61,46,0.2)'}`,borderRadius:12,padding:'1.25rem',textAlign:'center',cursor:'pointer',background:dragActive?'rgba(20,122,84,0.04)':selectedFile?'rgba(20,122,84,0.03)':'var(--cream)',transition:'all .2s'}}>
@@ -206,11 +221,29 @@ const AdminStudyMaterials = () => {
                       <button type="button" onClick={e=>{e.stopPropagation();setSelectedFile(null);}} style={{background:'rgba(180,40,40,0.1)',border:'none',borderRadius:6,width:28,height:28,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#b42828',flexShrink:0}}><X size={13}/></button>
                     </div>
                   ) : (
-                    <><Upload size={26} color="var(--mist)" style={{margin:'0 auto 0.5rem'}}/><p style={{fontFamily:'var(--font-body)',fontSize:'0.875rem',color:'var(--stone)',margin:0}}>Drag & drop or click to select</p><p style={{fontFamily:'var(--font-body)',fontSize:'0.75rem',color:'var(--mist)',marginTop:4}}>PDF, DOC, DOCX, PPT, PPTX, TXT, XLS, XLSX · Max 50MB</p></>
+                    <><Upload size={26} color="var(--mist)" style={{margin:'0 auto 0.5rem'}}/><p style={{fontFamily:'var(--font-body)',fontSize:'0.875rem',color:'var(--stone)',margin:0}}>Drag & drop or click to select</p><p style={{fontFamily:'var(--font-body)',fontSize:'0.75rem',color:'var(--mist)',marginTop:4}}>PDF, DOC, DOCX, PPT, PPTX, TXT, XLS, XLSX · Max <strong>10MB</strong></p><p style={{fontFamily:'var(--font-body)',fontSize:'0.72rem',color:'#c97a2a',marginTop:6,fontWeight:500}}>📌 File &gt; 10MB? Use the External Link tab above.</p></>
                   )}
                   <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.xls,.xlsx" onChange={e=>handleFileSelect(e.target.files[0])} style={{display:'none'}}/>
                 </div>
-              </div>
+              ) : (
+                <div>
+                  <p style={{fontFamily:'var(--font-body)',fontSize:'0.8rem',fontWeight:600,color:'var(--charcoal)',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.06em'}}>Google Drive / External Link <span style={{color:'var(--jade)'}}>*</span></p>
+                  <div style={{background:'rgba(29,111,163,0.04)',border:'1.5px solid rgba(29,111,163,0.2)',borderRadius:12,padding:'1rem 1.25rem',marginBottom:'0.5rem'}}>
+                    <p style={{fontFamily:'var(--font-body)',fontSize:'0.8rem',color:'#1d6fa3',margin:'0 0 0.5rem',fontWeight:600}}>📋 How to get a Google Drive link:</p>
+                    <ol style={{fontFamily:'var(--font-body)',fontSize:'0.775rem',color:'var(--stone)',margin:0,paddingLeft:'1.25rem',lineHeight:1.8}}>
+                      <li>Upload your file to Google Drive</li>
+                      <li>Right-click → "Get link" → set to <strong>"Anyone with the link"</strong></li>
+                      <li>Copy the link and paste it below</li>
+                    </ol>
+                  </div>
+                  <input
+                    style={{width:'100%',fontFamily:'var(--font-body)',fontSize:'0.9rem',color:'var(--ink)',background:'var(--cream)',border:'1.5px solid rgba(10,61,46,0.15)',borderRadius:8,padding:'0.6rem 0.875rem',outline:'none',transition:'border-color .2s'}}
+                    value={formData.externalLink}
+                    onChange={e=>setFormData(p=>({...p,externalLink:e.target.value}))}
+                    placeholder="https://drive.google.com/file/d/..."
+                  />
+                </div>
+              )}
 
               {/* Title + Lesson row */}
               <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:'0.875rem'}}>

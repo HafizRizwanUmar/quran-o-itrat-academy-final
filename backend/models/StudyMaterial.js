@@ -18,34 +18,34 @@ const studyMaterialSchema = new mongoose.Schema({
     ref: 'Course',
     required: [true, 'Course is required']
   },
-  // File-related fields for uploaded files
+  // File-related fields for uploaded files (optional when externalLink is provided)
   fileName: {
     type: String,
-    required: [true, 'File name is required'],
     trim: true
   },
   originalFileName: {
     type: String,
-    required: [true, 'Original file name is required'],
     trim: true
   },
   filePath: {
     type: String,
-    required: [true, 'File path is required'],
     trim: true
   },
   fileType: {
     type: String,
-    required: [true, 'File type is required'],
     trim: true,
     lowercase: true
   },
   fileSize: {
     type: String,
-    required: [true, 'File size is required'],
     trim: true
   },
-  // Legacy fields for backward compatibility (optional)
+  // External link (e.g. Google Drive) for files > 10MB
+  externalLink: {
+    type: String,
+    trim: true
+  },
+  // Legacy / Cloudinary URL
   fileUrl: {
     type: String,
     trim: true

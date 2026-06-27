@@ -21,7 +21,11 @@ const libraryMaterialSchema = new mongoose.Schema({
   },
   fileUrl: {
     type: String,
-    required: [true, 'File URL is required'],
+    trim: true
+  },
+  // External link (e.g. Google Drive) for files > 10MB
+  externalLink: {
+    type: String,
     trim: true
   },
   fileType: {

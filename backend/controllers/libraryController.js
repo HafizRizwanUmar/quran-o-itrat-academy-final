@@ -105,48 +105,39 @@ const downloadLibraryMaterial = async (req, res) => {
         error: 'Library material not found'
       });
     }
-    
-    // Construct the full file path
-    const filePath = path.join(__dirname, '..', material.fileUrl);
-    
-    // Check if file exists
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({
-        success: false,
-        error: 'File not found on server'
-      });
-    }
-    
+
     // Update download count
     await LibraryMaterial.findByIdAndUpdate(req.params.id, {
       $inc: { downloadCount: 1 }
     });
+
+    // External link (Google Drive etc.)
+    if (material.externalLink) {
+      return res.redirect(material.externalLink);
+    }
+
+    // Cloudinary or absolute URL
+    if (material.fileUrl && (material.fileUrl.startsWith('http://') || material.fileUrl.startsWith('https://'))) {
+      return res.redirect(material.fileUrl);
+    }
     
-    // Set appropriate headers for file download
+    // Local file (legacy)
+    const filePath = path.join(__dirname, '..', material.fileUrl);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ success: false, error: 'File not found on server' });
+    }
     const filename = `${material.title}.${material.fileType}`;
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Type', 'application/octet-stream');
-    
-    // Stream the file to the response
     const fileStream = fs.createReadStream(filePath);
     fileStream.pipe(res);
-    
     fileStream.on('error', (error) => {
       console.error('Error streaming file:', error);
-      if (!res.headersSent) {
-        res.status(500).json({
-          success: false,
-          error: 'Error downloading file'
-        });
-      }
+      if (!res.headersSent) res.status(500).json({ success: false, error: 'Error downloading file' });
     });
-    
   } catch (error) {
     console.error('Error downloading material:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Server error while downloading material'
-    });
+    res.status(500).json({ success: false, error: 'Server error while downloading material' });
   }
 };
 
@@ -155,110 +146,65 @@ const downloadLibraryMaterial = async (req, res) => {
 // @access  Private/Admin
 const createLibraryMaterial = async (req, res) => {
   try {
-    // Log incoming request for debugging
     console.log('Request body:', req.body);
     console.log('Uploaded file:', req.file);
 
-    const { title, description, category, author } = req.body;
+    const { title, description, category, author, externalLink } = req.body;
 
-    // Validate required fields
-    if (!title || title.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        error: 'Title is required'
-      });
-    }
-    if (!description || description.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        error: 'Description is required'
-      });
-    }
-    if (!category || category.trim() === '') {
-      return res.status(400).json({
-        success: false,
-        error: 'Category is required'
-      });
-    }
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        error: 'File is required'
-      });
-    }
+    if (!title || title.trim() === '') return res.status(400).json({ success: false, error: 'Title is required' });
+    if (!description || description.trim() === '') return res.status(400).json({ success: false, error: 'Description is required' });
+    if (!category || category.trim() === '') return res.status(400).json({ success: false, error: 'Category is required' });
 
-    // Validate category
     const allowedCategories = ['books', 'audio', 'video', 'documents'];
     if (!allowedCategories.includes(category.toLowerCase())) {
-      return res.status(400).json({
-        success: false,
-        error: `Invalid category. Allowed categories: ${allowedCategories.join(', ')}`
-      });
+      return res.status(400).json({ success: false, error: `Invalid category. Allowed: ${allowedCategories.join(', ')}` });
     }
 
-    // Derive fileUrl, fileType, and fileSize from uploaded file
-    const fileUrl = `/uploads/${req.file.filename}`;
-    const fileExtension = path.extname(req.file.originalname).toLowerCase();
-    const fileType = fileExtension.replace('.', '');
-    const fileSize = (req.file.size / 1024 / 1024).toFixed(2) + ' MB';
+    let materialData;
 
-    // Validate fileType
-    const allowedFileTypes = ['pdf', 'doc', 'docx', 'mp3', 'mp4', 'avi', 'mov'];
-    if (!allowedFileTypes.includes(fileType)) {
-      // Remove uploaded file if validation fails
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (unlinkError) {
-        console.error('Error removing invalid file:', unlinkError);
+    if (externalLink && externalLink.trim()) {
+      // External link mode (Google Drive etc.)
+      materialData = {
+        title: title.trim(),
+        description: description.trim(),
+        category: category.toLowerCase(),
+        author: author ? author.trim() : '',
+        externalLink: externalLink.trim(),
+        fileType: 'link',
+        fileSize: 'External'
+      };
+    } else {
+      // File upload mode
+      if (!req.file) return res.status(400).json({ success: false, error: 'A file or external link is required' });
+
+      const fileExtension = path.extname(req.file.originalname).toLowerCase();
+      const fileType = fileExtension.replace('.', '');
+      const allowedFileTypes = ['pdf', 'doc', 'docx', 'mp3', 'mp4', 'avi', 'mov'];
+      if (!allowedFileTypes.includes(fileType)) {
+        try { fs.unlinkSync(req.file.path); } catch(e) {}
+        return res.status(400).json({ success: false, error: `Invalid file type. Allowed: ${allowedFileTypes.join(', ')}` });
       }
-      return res.status(400).json({
-        success: false,
-        error: `Invalid file type. Allowed types: ${allowedFileTypes.join(', ')}`
-      });
+
+      materialData = {
+        title: title.trim(),
+        description: description.trim(),
+        category: category.toLowerCase(),
+        author: author ? author.trim() : '',
+        fileUrl: `/uploads/${req.file.filename}`,
+        fileType,
+        fileSize: (req.file.size / 1024 / 1024).toFixed(2) + ' MB'
+      };
     }
-
-    const materialData = {
-      title: title.trim(),
-      description: description.trim(),
-      category: category.toLowerCase(),
-      author: author ? author.trim() : '',
-      fileUrl,
-      fileType,
-      fileSize
-    };
-
-    console.log('Material data to save:', materialData);
 
     const material = await LibraryMaterial.create(materialData);
-    
-    res.status(201).json({
-      success: true,
-      data: normalize(material)
-    });
+    res.status(201).json({ success: true, data: normalize(material) });
   } catch (error) {
     console.error('Error in createLibraryMaterial:', error);
-    
-    // Remove uploaded file if database save fails
-    if (req.file && req.file.path) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (unlinkError) {
-        console.error('Error removing file after database error:', unlinkError);
-      }
-    }
-    
+    if (req.file && req.file.path) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
     if (error.name === 'ValidationError') {
-      const message = Object.values(error.errors).map(val => val.message).join(', ');
-      return res.status(400).json({
-        success: false,
-        error: message
-      });
+      return res.status(400).json({ success: false, error: Object.values(error.errors).map(v => v.message).join(', ') });
     }
-    
-    res.status(500).json({
-      success: false,
-      error: 'Server error while creating library material'
-    });
+    res.status(500).json({ success: false, error: 'Server error while creating library material' });
   }
 };
 

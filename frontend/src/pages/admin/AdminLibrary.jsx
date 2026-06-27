@@ -17,7 +17,7 @@ const CAT_MAP = {
 };
 const getCat = c => CAT_MAP[c] || { Icon: FileText, bg:'rgba(100,100,100,0.07)', color:'#555', label: c||'File' };
 
-const EMPTY_FORM = { title:'', description:'', category:'books', author:'' };
+const EMPTY_FORM = { title:'', description:'', category:'books', author:'', externalLink:'' };
 
 const AdminLibrary = () => {
   const [materials, setMaterials]         = useState([]);
@@ -32,6 +32,7 @@ const AdminLibrary = () => {
   const [dragActive, setDragActive]       = useState(false);
   const [uploading, setUploading]         = useState(false);
   const [formErrors, setFormErrors]       = useState({});
+  const [uploadMode, setUploadMode]       = useState('file'); // 'file' | 'link'
   const fileRef = useRef(null);
 
   const fetchMaterials = async (page=1, search='', category='') => {
@@ -42,13 +43,18 @@ const AdminLibrary = () => {
   };
   useEffect(()=>{fetchMaterials(currentPage, searchTerm, categoryFilter);},[currentPage,searchTerm,categoryFilter]);
 
-  const closeModal = () => { setShowModal(false); setFormData(EMPTY_FORM); setSelectedFile(null); setFormErrors({}); setDragActive(false); };
+  const closeModal = () => { setShowModal(false); setFormData(EMPTY_FORM); setSelectedFile(null); setFormErrors({}); setDragActive(false); setUploadMode('file'); };
 
   const handleFileInput = file => {
     if (!file) return;
     const allowed = ['pdf','doc','docx','mp3','mp4','avi','mov'];
     const ext = file.name.split('.').pop().toLowerCase();
     if (!allowed.includes(ext)) { setFormErrors(p=>({...p, file:`Invalid type. Allowed: ${allowed.join(', ')}`})); return; }
+    if (file.size > 10*1024*1024) {
+      setFormErrors(p=>({...p, file:'⚠️ File exceeds 10MB limit. Please upload to Google Drive and use the "External Link" option instead.'}));
+      setSelectedFile(null);
+      return;
+    }
     if (file.size > 50*1024*1024) { setFormErrors(p=>({...p, file:'Max file size is 50MB'})); return; }
     setSelectedFile(file); setFormErrors(p=>({...p, file:''}));
   };
@@ -61,7 +67,9 @@ const AdminLibrary = () => {
     const errors = {};
     if (!formData.title.trim()) errors.title = 'Title is required';
     if (!formData.description.trim()) errors.description = 'Description is required';
-    if (!selectedFile) errors.file = 'A file is required';
+    if (uploadMode === 'file' && !selectedFile) errors.file = 'A file is required';
+    if (uploadMode === 'link' && !formData.externalLink.trim()) errors.externalLink = 'A Google Drive link is required';
+    if (uploadMode === 'link' && formData.externalLink.trim() && !formData.externalLink.trim().startsWith('http')) errors.externalLink = 'Please enter a valid URL';
     if (Object.keys(errors).length) { setFormErrors(errors); return; }
     setUploading(true);
     try {
@@ -70,7 +78,8 @@ const AdminLibrary = () => {
       fd.append('description', formData.description.trim());
       fd.append('category', formData.category);
       fd.append('author', formData.author.trim());
-      fd.append('file', selectedFile);
+      if (uploadMode === 'file') fd.append('file', selectedFile);
+      if (uploadMode === 'link') fd.append('externalLink', formData.externalLink.trim());
       await libraryAPI.create(fd);
       closeModal(); fetchMaterials(currentPage, searchTerm, categoryFilter);
     } catch(e){ setFormErrors({general: e.response?.data?.error||'Upload failed. Please try again.'}); }
@@ -176,34 +185,64 @@ const AdminLibrary = () => {
               </div>
             </div>
             <form onSubmit={handleSubmit} style={{flex:1,overflowY:'auto',padding:'1.5rem',display:'flex',flexDirection:'column',gap:'1rem'}}>
-              {/* File drop zone */}
-              <div>
-                <p style={label}>File <span style={{color:'var(--jade)'}}>*</span></p>
-                <div
-                  onClick={()=>fileRef.current?.click()}
-                  onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
-                  style={{border:`2px dashed ${dragActive?'var(--jade)':'rgba(10,61,46,0.2)'}`,borderRadius:12,padding:'1.5rem',textAlign:'center',cursor:'pointer',background:dragActive?'rgba(20,122,84,0.04)':selectedFile?'rgba(20,122,84,0.03)':'var(--cream)',transition:'all .2s'}}
-                >
-                  {selectedFile ? (
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'0.75rem'}}>
-                      <div style={{width:40,height:40,borderRadius:10,background:'rgba(20,122,84,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}><FileText size={20} color="var(--jade)"/></div>
-                      <div style={{textAlign:'left'}}>
-                        <p style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:'0.875rem',color:'var(--forest)',margin:0}}>{selectedFile.name}</p>
-                        <p style={{fontFamily:'var(--font-body)',fontSize:'0.775rem',color:'var(--mist)',margin:0}}>{fmtSize(selectedFile.size)}</p>
-                      </div>
-                      <button type="button" onClick={e=>{e.stopPropagation();setSelectedFile(null);}} style={{marginLeft:'auto',background:'rgba(180,40,40,0.1)',border:'none',borderRadius:6,width:28,height:28,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#b42828'}}><X size={13}/></button>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload size={28} color="var(--mist)" style={{margin:'0 auto 0.5rem'}}/>
-                      <p style={{fontFamily:'var(--font-body)',fontSize:'0.875rem',color:'var(--stone)',margin:0}}>Drag & drop or click to upload</p>
-                      <p style={{fontFamily:'var(--font-body)',fontSize:'0.75rem',color:'var(--mist)',marginTop:4}}>PDF, DOC, DOCX, MP3, MP4, AVI, MOV · Max 50MB</p>
-                    </>
-                  )}
-                  <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.mp3,.mp4,.avi,.mov" onChange={e=>handleFileInput(e.target.files[0])} style={{display:'none'}}/>
-                </div>
-                {formErrors.file&&<p style={{fontFamily:'var(--font-body)',fontSize:'0.78rem',color:'#b42828',marginTop:4}}>{formErrors.file}</p>}
+              {/* Mode toggle */}
+              <div style={{display:'flex',gap:'0.5rem',background:'var(--cream)',borderRadius:10,padding:'0.3rem'}}>
+                {[{v:'file',l:'📁 Upload File'},{v:'link',l:'🔗 External Link (Google Drive)'}].map(({v,l})=>(
+                  <button key={v} type="button" onClick={()=>{setUploadMode(v);setSelectedFile(null);setFormErrors({});}} style={{flex:1,fontFamily:'var(--font-body)',fontSize:'0.8rem',fontWeight:600,padding:'0.5rem 0.75rem',borderRadius:8,border:'none',cursor:'pointer',background:uploadMode===v?'white':'transparent',color:uploadMode===v?'var(--jade)':'var(--stone)',boxShadow:uploadMode===v?'0 1px 4px rgba(0,0,0,0.1)':'none',transition:'all .2s'}}>{l}</button>
+                ))}
               </div>
+
+              {/* File drop zone OR External link input */}
+              {uploadMode === 'file' ? (
+                <div>
+                  <p style={label}>File <span style={{color:'var(--jade)'}}>*</span></p>
+                  <div
+                    onClick={()=>fileRef.current?.click()}
+                    onDragEnter={handleDrag} onDragOver={handleDrag} onDragLeave={handleDrag} onDrop={handleDrop}
+                    style={{border:`2px dashed ${dragActive?'var(--jade)':'rgba(10,61,46,0.2)'}`,borderRadius:12,padding:'1.5rem',textAlign:'center',cursor:'pointer',background:dragActive?'rgba(20,122,84,0.04)':selectedFile?'rgba(20,122,84,0.03)':'var(--cream)',transition:'all .2s'}}
+                  >
+                    {selectedFile ? (
+                      <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'0.75rem'}}>
+                        <div style={{width:40,height:40,borderRadius:10,background:'rgba(20,122,84,0.1)',display:'flex',alignItems:'center',justifyContent:'center'}}><FileText size={20} color="var(--jade)"/></div>
+                        <div style={{textAlign:'left'}}>
+                          <p style={{fontFamily:'var(--font-body)',fontWeight:600,fontSize:'0.875rem',color:'var(--forest)',margin:0}}>{selectedFile.name}</p>
+                          <p style={{fontFamily:'var(--font-body)',fontSize:'0.775rem',color:'var(--mist)',margin:0}}>{fmtSize(selectedFile.size)}</p>
+                        </div>
+                        <button type="button" onClick={e=>{e.stopPropagation();setSelectedFile(null);}} style={{marginLeft:'auto',background:'rgba(180,40,40,0.1)',border:'none',borderRadius:6,width:28,height:28,display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',color:'#b42828'}}><X size={13}/></button>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload size={28} color="var(--mist)" style={{margin:'0 auto 0.5rem'}}/>
+                        <p style={{fontFamily:'var(--font-body)',fontSize:'0.875rem',color:'var(--stone)',margin:0}}>Drag & drop or click to upload</p>
+                        <p style={{fontFamily:'var(--font-body)',fontSize:'0.75rem',color:'var(--mist)',marginTop:4}}>PDF, DOC, DOCX, MP3, MP4, AVI, MOV · Max <strong>10MB</strong></p>
+                        <p style={{fontFamily:'var(--font-body)',fontSize:'0.72rem',color:'#c97a2a',marginTop:6,fontWeight:500}}>📌 File &gt; 10MB? Use the External Link tab above.</p>
+                      </>
+                    )}
+                    <input ref={fileRef} type="file" accept=".pdf,.doc,.docx,.mp3,.mp4,.avi,.mov" onChange={e=>handleFileInput(e.target.files[0])} style={{display:'none'}}/>
+                  </div>
+                  {formErrors.file&&<p style={{fontFamily:'var(--font-body)',fontSize:'0.78rem',color:'#b42828',marginTop:4}}>{formErrors.file}</p>}
+                </div>
+              ) : (
+                <div>
+                  <p style={label}>Google Drive / External Link <span style={{color:'var(--jade)'}}>*</span></p>
+                  <div style={{background:'rgba(29,111,163,0.04)',border:'1.5px solid rgba(29,111,163,0.2)',borderRadius:12,padding:'1rem 1.25rem',marginBottom:'0.5rem'}}>
+                    <p style={{fontFamily:'var(--font-body)',fontSize:'0.8rem',color:'#1d6fa3',margin:'0 0 0.5rem',fontWeight:600}}>📋 How to get a Google Drive link:</p>
+                    <ol style={{fontFamily:'var(--font-body)',fontSize:'0.775rem',color:'var(--stone)',margin:0,paddingLeft:'1.25rem',lineHeight:1.8}}>
+                      <li>Upload your file to Google Drive</li>
+                      <li>Right-click → "Get link" → set to <strong>"Anyone with the link"</strong></li>
+                      <li>Copy the link and paste it below</li>
+                    </ol>
+                  </div>
+                  <input
+                    style={{...inp,borderColor:formErrors.externalLink?'#b42828':'rgba(10,61,46,0.15)'}}
+                    value={formData.externalLink}
+                    onChange={e=>setFormData(p=>({...p,externalLink:e.target.value}))}
+                    placeholder="https://drive.google.com/file/d/..."
+                    onFocus={focusIn} onBlur={focusOut}
+                  />
+                  {formErrors.externalLink&&<p style={{fontFamily:'var(--font-body)',fontSize:'0.78rem',color:'#b42828',marginTop:4}}>{formErrors.externalLink}</p>}
+                </div>
+              )}
               {/* Title */}
               <div>
                 <p style={label}>Title <span style={{color:'var(--jade)'}}>*</span></p>

@@ -154,6 +154,14 @@ const downloadStudyMaterial = async (req, res) => {
       fileUrl: material.fileUrl
     });
 
+    // Redirect to external link if set
+    if (material.externalLink) {
+      try {
+        await StudyMaterial.findByIdAndUpdate(req.params.id, { $inc: { downloadCount: 1 } });
+      } catch(e) {}
+      return res.redirect(material.externalLink);
+    }
+
     // Handle both new file upload system and legacy URL system
     if (material.fileName && material.filePath) {
       // New file upload system
@@ -284,81 +292,62 @@ const downloadStudyMaterial = async (req, res) => {
 // @access  Private/Admin
 const createStudyMaterial = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        error: 'No file uploaded'
-      });
-    }
+    const { title, description, courseId, lessonNumber, externalLink } = req.body;
 
-    const { title, description, courseId, lessonNumber } = req.body;
-    
-    // Validate required fields
     if (!title || !description || !courseId) {
-      // Clean up uploaded file if validation fails
-      if (fs.existsSync(req.file.path)) {
-        fs.unlinkSync(req.file.path);
-      }
-      return res.status(400).json({
-        success: false,
-        error: 'Title, description, and course are required'
-      });
+      if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+      return res.status(400).json({ success: false, error: 'Title, description, and course are required' });
     }
 
-    // Extract file information
-    const fileSize = formatFileSize(req.file.size);
-    const fileType = getFileTypeFromMime(req.file.mimetype);
-    const fileName = req.file.filename;
-    const originalFileName = req.file.originalname;
-    
-    console.log('Creating study material with file:', {
-      fileName,
-      originalFileName,
-      filePath: req.file.path,
-      fileType,
-      fileSize
-    });
-    
-    // Create the study material record
-    const materialData = {
-      title,
-      description,
-      courseId,
-      fileName,
-      originalFileName,
-      fileType,
-      fileSize,
-      filePath: req.file.path,
-      downloadCount: 0, // Initialize download count
-      ...(lessonNumber && { lessonNumber: parseInt(lessonNumber) })
-    };
+    let materialData;
+
+    if (externalLink && externalLink.trim()) {
+      // External link mode (Google Drive etc.)
+      materialData = {
+        title,
+        description,
+        courseId,
+        externalLink: externalLink.trim(),
+        fileType: 'link',
+        fileSize: 'External',
+        fileName: 'external-link',
+        originalFileName: 'external-link',
+        filePath: 'external-link',
+        downloadCount: 0,
+        ...(lessonNumber && { lessonNumber: parseInt(lessonNumber) })
+      };
+    } else {
+      if (!req.file) return res.status(400).json({ success: false, error: 'No file uploaded and no external link provided' });
+
+      const fileSize = formatFileSize(req.file.size);
+      const fileType = getFileTypeFromMime(req.file.mimetype);
+      const fileName = req.file.filename;
+      const originalFileName = req.file.originalname;
+
+      materialData = {
+        title,
+        description,
+        courseId,
+        fileName,
+        originalFileName,
+        fileType,
+        fileSize,
+        filePath: req.file.path,
+        downloadCount: 0,
+        ...(lessonNumber && { lessonNumber: parseInt(lessonNumber) })
+      };
+    }
 
     const material = await StudyMaterial.create(materialData);
-    
     console.log('Study material created successfully:', material._id);
-    
-    res.status(201).json({
-      success: true,
-      data: normalize(material)
-    });
+    res.status(201).json({ success: true, data: normalize(material) });
   } catch (error) {
-    // Clean up uploaded file if there's an error
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
-    
+    if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
     console.error('Error creating study material:', error);
     if (error.name === 'ValidationError') {
-      const message = Object.values(error.errors).map(val => val.message).join(', ');
-      return res.status(400).json({
-        success: false,
-        error: message
-      });
+      return res.status(400).json({ success: false, error: Object.values(error.errors).map(v => v.message).join(', ') });
     }
-    res.status(500).json({
-      success: false,
-      error: 'Server error while creating study material'
-    });
+    res.status(500).json({ success: false, error: 'Server error while creating study material' });
   }
 };
 
